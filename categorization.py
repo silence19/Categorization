@@ -23,14 +23,16 @@ def plot_plotly_point(pdata, fkeys, prange, prow):
     # figure, point, text, title # size="diameter", size_max=50
     fig = px.scatter_3d(pdata, x=fkeys[4],y=fkeys[5],z=fkeys[6],text=fkeys[1], \
                         color=fkeys[0], title=prow)
+    fig.update_traces(textposition='middle right', selector=dict(type='scatter3d')) # set the text position
     fig.add_traces(go.Scatter3d(x=prange[0], y=[0,0], z=[0,0],
                               mode='lines',
                               line_width=6,
-                              name='Axis of Range'))
+                              #textposition='middle right',
+                              name='Axis of Time'))
     fig.add_traces(go.Scatter3d(x=[0,0], y=prange[1], z=[0,0],
                               mode='lines',
                               line_width=6,
-                              name='Axis of Period'))
+                              name='Axis of Space'))
     fig.add_traces(go.Scatter3d(x=[0,0], y=[0,0], z=prange[2],
                               mode='lines',
                               line_width=6,
@@ -82,7 +84,7 @@ def plot_plotly_arrow(pdata, pa, pb, pc, pkeys, pfig):
                                      y=[row.ay, row.cy, row.by],
                                      z=[row.az, row.cz, row.bz],
                               mode='lines+text',
-                              #text=['',row._1,''],
+                              text=['',row._1,''],
                               line_width=3,
                               #showlegend=False,
                               name=row._1)) # not robust -> ax ay az bx by bz _1
@@ -97,9 +99,8 @@ def plot_plotly_arrow(pdata, pa, pb, pc, pkeys, pfig):
         u = ua.tolist(),
         v = va.tolist(),
         w = wa.tolist(),
-        #sizemode = "absolute",
+        sizemode = "absolute",
         sizeref = 0.5,
-        #coloraxis=None, colorbar = None, colorscale=None, showlegend=False,
         autocolorscale = False,
         showscale=False, 
         anchor = "tip") )
@@ -135,16 +136,14 @@ if __name__=="__main__":
     fsheetname = "v5_210407"                            # sheet label name
     fhead = [0]                                         # head rows
     fkeys = ["subject small", "object 1", "object 2", "class", \
-             "size_d(lgm)", "own_t(lgs)", "number(lgn)", "lim"]     # 0-3, 4-7
+             "t(lgs)", "d(lgm)", "n(lg-)"]     # 0-3, 4-6
     fvalue = ["value", "equ"]
     fdatai = pd.read_excel(fsheetfile, sheet_name=fsheetname, header=fhead)
+    # plot 3d
+    fdata1, ffig1, frange1 = get_table_val(fdatai,fkeys,fvalue,"scatter",[-1,-1,-1])    # scatter
+    fdata2, ffig2 = get_table_equ(fdatai,fkeys,fvalue, ffig1)                  # arrow
+    ffig2.write_html('figure_'+'arrow'+'.html',auto_open=True) # export
     # plot 2d
     #fdata7, ffig7, frange7 = get_table_val(fdatai,fkeys,fvalue[0],"bubble",[0,1,2])
     #fdata8, ffig8, frange8 = get_table_val(fdatai,fkeys,fvalue[0],"bubble",[1,2,0])
     #fdata9, ffig9, frange9 = get_table_val(fdatai,fkeys,fvalue[0],"bubble",[0,2,1])
-    # plot 3d
-    fdata1, ffig1, frange1 = get_table_val(fdatai,fkeys,fvalue,"scatter",[-1,-1,-1])    # scatter
-    #ffig1.write_html('figure_'+'scatter'+'.html',auto_open=True) # export
-    fdata2, ffig2 = get_table_equ(fdatai,fkeys,fvalue, ffig1)                  # arrow
-    ffig2.write_html('figure_'+'arrow'+'.html',auto_open=True) # export
-    
